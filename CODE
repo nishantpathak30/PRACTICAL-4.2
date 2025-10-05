@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 15px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .search-box, .add-book-form input {
+      width: calc(50% - 10px);
+      padding: 8px;
+      margin: 5px 5px 15px 0;
+      font-size: 16px;
+    }
+    .add-book-form input:last-child {
+      margin-right: 0;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    ul.book-list {
+      list-style: none;
+      padding: 0;
+    }
+    li.book-item {
+      background: white;
+      margin-bottom: 10px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 4px;
+      box-shadow: 0 0 3px #ccc;
+    }
+    li.book-item span strong {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Library Management</h1>
+
+  <input
+    type="text"
+    id="searchBox"
+    placeholder="Search by title or author"
+  />
+
+  <form id="addBookForm" class="add-book-form">
+    <input type="text" id="newTitle" placeholder="New book title" />
+    <input type="text" id="newAuthor" placeholder="New book author" />
+    <button type="submit">Add Book</button>
+  </form>
+
+  <ul id="bookList" class="book-list"></ul>
+
+  <script>
+    (() => {
+      // Initial books
+      let books = [
+        { title: "1984", author: "George Orwell" },
+        { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+        { title: "To Kill a Mockingbird", author: "Harper Lee" },
+      ];
+
+      // DOM elements
+      const searchBox = document.getElementById("searchBox");
+      const addBookForm = document.getElementById("addBookForm");
+      const newTitleInput = document.getElementById("newTitle");
+      const newAuthorInput = document.getElementById("newAuthor");
+      const bookList = document.getElementById("bookList");
+
+      // Render books based on current filter
+      function renderBooks() {
+        const searchTerm = searchBox.value.toLowerCase();
+        bookList.innerHTML = "";
+
+        const filteredBooks = books.filter(book =>
+          book.title.toLowerCase().includes(searchTerm) ||
+          book.author.toLowerCase().includes(searchTerm)
+        );
+
+        filteredBooks.forEach((book, index) => {
+          const li = document.createElement("li");
+          li.className = "book-item";
+
+          const span = document.createElement("span");
+          span.innerHTML = `<strong>${book.title}</strong> by ${book.author}`;
+
+          const removeBtn = document.createElement("button");
+          removeBtn.textContent = "Remove";
+          removeBtn.onclick = () => {
+            books = books.filter((_, i) => {
+              // We need to remove based on the index of the original array, not filtered
+              const bookInFiltered = filteredBooks[i];
+              return !(book.title === bookInFiltered.title && book.author === bookInFiltered.author);
+            });
+            renderBooks();
+          };
+
+          li.appendChild(span);
+          li.appendChild(removeBtn);
+          bookList.appendChild(li);
+        });
+      }
+
+      // Add new book handler
+      addBookForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = newTitleInput.value.trim();
+        const author = newAuthorInput.value.trim();
+        if (!title || !author) return;
+
+        books.push({ title, author });
+        newTitleInput.value = "";
+        newAuthorInput.value = "";
+        renderBooks();
+      });
+
+      // Search input handler
+      searchBox.addEventListener("input", () => {
+        renderBooks();
+      });
+
+      // Initial render
+      renderBooks();
+    })();
+  </script>
+</body>
+</html>
